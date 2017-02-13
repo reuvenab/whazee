@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
-namespace wazer
+namespace whazee
 {
     public partial class Form1 : Form
     {

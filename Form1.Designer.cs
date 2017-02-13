@@ -1,4 +1,4 @@
-﻿namespace wazer
+﻿namespace whazee
 {
     partial class Form1
     {
@@ -63,7 +63,7 @@
             this.Controls.Add(this.Routes);
             this.Controls.Add(this.Check);
             this.Name = "Form1";
-            this.Text = "Wazer";
+            this.Text = "Whazee";
             this.ResumeLayout(false);
 
         }

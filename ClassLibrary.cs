@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace wazer
+namespace whazee
 {
     public class ClassLibrary
     {
