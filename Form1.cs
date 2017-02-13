@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
@@ -18,10 +19,6 @@ namespace whazee
         {
             InitializeComponent();
             Routes.DrawMode = TabDrawMode.OwnerDrawFixed;
-
-            Routes1.View = View.Details;
-            Routes1.Columns.Add("Route", 400, HorizontalAlignment.Left);
-            Routes1.Columns.Add("Duration", -2, HorizontalAlignment.Left);
         }
 
         //private string _home2Office =
@@ -38,6 +35,7 @@ namespace whazee
 
         private void Check_Click(object sender, EventArgs e)
         {
+            Check.Enabled = false;
             //OfflineTest();
             //return;
 
@@ -59,15 +57,15 @@ namespace whazee
 
         private void client_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
-            Routes1.Items.Clear();
             if (e.Error != null)
             {
-                var lvi = new ListViewItem("Error:");
-                lvi.SubItems.Add(e.Error.Message);
-                Routes1.Items.Add(lvi);
-                return;
+                Text = $"{DateTime.Now} - Error: {e.Error.Message}";
             }
-            ProcessData(e.Result);
+            else
+            {
+                ProcessData(e.Result);
+            }
+            Check.Enabled = true;
         }
 
 
@@ -87,7 +85,6 @@ namespace whazee
                 var rn = alternative.response.routeName;
                 routeResults.Add(new Tuple<string, TimeSpan>(rn, ts));
             }
-
             var newTabPages = new List<TabPage>();
             foreach (var routeResult in routeResults)
             {
@@ -110,6 +107,7 @@ namespace whazee
                         //Width = t.Width / 4,
                         //Height = t.Height - tb.Height,
                         //Tag = ds
+                        Font = new Font(Font.FontFamily, 15)
                     };
                     ntp.Controls.Add(lb);
                     ntp.AutoSize = true;
@@ -175,10 +173,7 @@ namespace whazee
                 }
             }
             minimalRoute.Tag = Color.Gold;
-            //Routes.TabPages.Remove(minimalRoute);
-            //Routes.TabPages.Insert(0, minimalRoute);
-                //new Font(minimalRoute.Font.FontFamily, minimalRoute.Font.SizeInPoints, FontStyle.Bold); 
-            this.Refresh();
+            Refresh();
         }
 
         private void Routes_DrawItem(object sender, DrawItemEventArgs e)
@@ -200,6 +195,18 @@ namespace whazee
                 e.Graphics.DrawRectangle(Pens.DarkGray, rect);
                 e.DrawFocusRectangle();
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (!Check.Enabled)
+                return;
+            Check_Click(sender, e);
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            FiveMinTimer.Enabled = checkBox1.Checked;
         }
     }
 }
