@@ -33,6 +33,10 @@
             this.Routes = new System.Windows.Forms.TabControl();
             this.FiveMinTimer = new System.Windows.Forms.Timer(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.Direction = new System.Windows.Forms.GroupBox();
+            this.Home = new System.Windows.Forms.RadioButton();
+            this.Work = new System.Windows.Forms.RadioButton();
+            this.Direction.SuspendLayout();
             this.SuspendLayout();
             // 
             // Check
@@ -54,7 +58,7 @@
             this.Routes.Name = "Routes";
             this.Routes.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.Routes.SelectedIndex = 0;
-            this.Routes.Size = new System.Drawing.Size(1059, 555);
+            this.Routes.Size = new System.Drawing.Size(1059, 537);
             this.Routes.TabIndex = 2;
             this.Routes.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Routes_DrawItem);
             // 
@@ -66,7 +70,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(12, 578);
+            this.checkBox1.Location = new System.Drawing.Point(12, 555);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(98, 21);
             this.checkBox1.TabIndex = 3;
@@ -74,16 +78,55 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // Direction
+            // 
+            this.Direction.Controls.Add(this.Work);
+            this.Direction.Controls.Add(this.Home);
+            this.Direction.Location = new System.Drawing.Point(12, 582);
+            this.Direction.Name = "Direction";
+            this.Direction.Size = new System.Drawing.Size(389, 55);
+            this.Direction.TabIndex = 4;
+            this.Direction.TabStop = false;
+            this.Direction.Text = "Direction";
+            // 
+            // Home
+            // 
+            this.Home.AutoSize = true;
+            this.Home.Location = new System.Drawing.Point(7, 22);
+            this.Home.Name = "Home";
+            this.Home.Size = new System.Drawing.Size(66, 21);
+            this.Home.TabIndex = 0;
+            this.Home.TabStop = true;
+            this.Home.Text = "Home";
+            this.Home.UseVisualStyleBackColor = true;
+            this.Home.CheckedChanged += new System.EventHandler(this.Home_CheckedChanged);
+            // 
+            // Work
+            // 
+            this.Work.AutoSize = true;
+            this.Work.Location = new System.Drawing.Point(273, 22);
+            this.Work.Name = "Work";
+            this.Work.Size = new System.Drawing.Size(62, 21);
+            this.Work.TabIndex = 1;
+            this.Work.TabStop = true;
+            this.Work.Text = "Work";
+            this.Work.UseVisualStyleBackColor = true;
+            this.Work.CheckedChanged += new System.EventHandler(this.Work_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1080, 649);
+            this.Controls.Add(this.Direction);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.Routes);
             this.Controls.Add(this.Check);
             this.Name = "Form1";
             this.Text = "Whazee";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Direction.ResumeLayout(false);
+            this.Direction.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -95,6 +138,9 @@
         private System.Windows.Forms.TabControl Routes;
         private System.Windows.Forms.Timer FiveMinTimer;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.GroupBox Direction;
+        private System.Windows.Forms.RadioButton Home;
+        private System.Windows.Forms.RadioButton Work;
     }
 }
 

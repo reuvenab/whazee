@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using Newtonsoft.Json;
 
 namespace whazee
@@ -21,9 +21,7 @@ namespace whazee
             Routes.DrawMode = TabDrawMode.OwnerDrawFixed;
         }
 
-        //private string _home2Office =
-            //@"https://www.waze.com/il-RoutingManager/routingRequest?from=x%3A34.894434+y%3A31.954212&to=x%3A35.209636+y%3A31.802528&at=0&returnJSON=true&returnGeometries=true&returnInstructions=true&timeout=60000&nPaths=3&clientVersion=4.0.0&options=AVOID_TRAILS%3At%2CALLOW_UTURNS%3At";
-
+        private readonly string _home2office = @"https://www.waze.com/il-RoutingManager/routingRequest?from=x%3A34.894434+y%3A31.954212&to=x%3A35.209636+y%3A31.802528&at=0&returnJSON=true&returnGeometries=true&returnInstructions=true&timeout=60000&nPaths=3&clientVersion=4.0.0&options=AVOID_TRAILS%3At%2CALLOW_UTURNS%3At";
 
         private readonly string _office2home =
             @"https://www.waze.com/il-RoutingManager/routingRequest?from=x:35.2114251+y:31.8023659&to=x:34.8944289+y:31.9550344&at=0&returnJSON=true&returnGeometries=true&returnInstructions=true&timeout=60000&nPaths=3&clientVersion=4.0.0&options=AVOID_TRAILS:t,ALLOW_UTURNS:t";
@@ -35,10 +33,10 @@ namespace whazee
 
         private void Check_Click(object sender, EventArgs e)
         {
-            Check.Enabled = false;
+
             //OfflineTest();
             //return;
-
+            Check.Enabled = false;
 
             var client = new WebClient
             {
@@ -93,6 +91,7 @@ namespace whazee
                         where tabPage.Text == routeResult.Item1
                         select (ListBox) tabPage.Controls[0]).FirstOrDefault();
                 List<TimeSpan> ds;
+                Chart chart;
 
                 if (lb == null)
                 {
@@ -109,17 +108,47 @@ namespace whazee
                         //Tag = ds
                         Font = new Font(Font.FontFamily, 15)
                     };
+
+                    chart = new Chart
+                    {
+                        Width = 800,
+                        //Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom,
+                        Left = lb.Left + lb.Width,
+                        Top = lb.Top
+                    };
+                    ChartArea chartArea1 = new ChartArea();
+
+                    var series0 = new Series(routeResult.Item1) {ChartType = SeriesChartType.Line};
+
+                    chart.ChartAreas.Add(chartArea1);
+                    chart.Series.Add(series0);
                     ntp.Controls.Add(lb);
+                    ntp.Controls.Add(chart);
                     ntp.AutoSize = true;
+                    
                     newTabPages.Add(ntp);
+
+                    //chart.Width = ntp.Width - lb.Width;
                 }
                 else
                 {
                     ds = (List<TimeSpan>)lb.DataSource;
+                    chart = (Chart)lb.Parent.Controls[1];
                 }
                 ds.Insert(0, routeResult.Item2);
                 lb.DataSource = null;
                 lb.DataSource = ds;
+
+                var series = ds.Select(timeSpan => timeSpan.Minutes).ToList();
+
+                var points = chart.Series[routeResult.Item1].Points;
+                chart.BeginInit();
+                //foreach (var val in series)
+                //{
+                //    points.Add(val);
+                //}
+                chart.Series[routeResult.Item1].Points.DataBindY(series);
+                chart.EndInit();
             }
             Routes.TabPages.AddRange(newTabPages.ToArray());
 
@@ -147,6 +176,7 @@ namespace whazee
         private Color improved = Color.Green;
         private Color notChanged = Color.Gray;
         private Color worsened = Color.Red;
+        private string _wazeUrl;
 
 
         private void ColorRoutes()
@@ -207,6 +237,21 @@ namespace whazee
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             FiveMinTimer.Enabled = checkBox1.Checked;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Home.Checked = true;
+        }
+
+        private void Home_CheckedChanged(object sender, EventArgs e)
+        {
+            _wazeUrl = _office2home;
+        }
+
+        private void Work_CheckedChanged(object sender, EventArgs e)
+        {
+            _wazeUrl = _home2office;
         }
     }
 }
