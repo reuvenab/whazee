@@ -29,14 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.Check = new System.Windows.Forms.Button();
-            this.Routes = new System.Windows.Forms.TabControl();
             this.FiveMinTimer = new System.Windows.Forms.Timer(this.components);
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.Direction = new System.Windows.Forms.GroupBox();
-            this.Home = new System.Windows.Forms.RadioButton();
             this.Work = new System.Windows.Forms.RadioButton();
+            this.Home = new System.Windows.Forms.RadioButton();
+            this.TrafficChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.Direction.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TrafficChart)).BeginInit();
             this.SuspendLayout();
             // 
             // Check
@@ -49,18 +51,6 @@
             this.Check.Text = "Check";
             this.Check.UseVisualStyleBackColor = true;
             this.Check.Click += new System.EventHandler(this.Check_Click);
-            // 
-            // Routes
-            // 
-            this.Routes.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.Routes.Location = new System.Drawing.Point(12, 12);
-            this.Routes.Name = "Routes";
-            this.Routes.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.Routes.SelectedIndex = 0;
-            this.Routes.Size = new System.Drawing.Size(1059, 537);
-            this.Routes.TabIndex = 2;
-            this.Routes.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.Routes_DrawItem);
             // 
             // FiveMinTimer
             // 
@@ -89,18 +79,6 @@
             this.Direction.TabStop = false;
             this.Direction.Text = "Direction";
             // 
-            // Home
-            // 
-            this.Home.AutoSize = true;
-            this.Home.Location = new System.Drawing.Point(7, 22);
-            this.Home.Name = "Home";
-            this.Home.Size = new System.Drawing.Size(66, 21);
-            this.Home.TabIndex = 0;
-            this.Home.TabStop = true;
-            this.Home.Text = "Home";
-            this.Home.UseVisualStyleBackColor = true;
-            this.Home.CheckedChanged += new System.EventHandler(this.Home_CheckedChanged);
-            // 
             // Work
             // 
             this.Work.AutoSize = true;
@@ -113,20 +91,43 @@
             this.Work.UseVisualStyleBackColor = true;
             this.Work.CheckedChanged += new System.EventHandler(this.Work_CheckedChanged);
             // 
+            // Home
+            // 
+            this.Home.AutoSize = true;
+            this.Home.Location = new System.Drawing.Point(7, 22);
+            this.Home.Name = "Home";
+            this.Home.Size = new System.Drawing.Size(66, 21);
+            this.Home.TabIndex = 0;
+            this.Home.TabStop = true;
+            this.Home.Text = "Home";
+            this.Home.UseVisualStyleBackColor = true;
+            this.Home.CheckedChanged += new System.EventHandler(this.Home_CheckedChanged);
+            // 
+            // TrafficChart
+            // 
+            chartArea1.Name = "ChartArea1";
+            this.TrafficChart.ChartAreas.Add(chartArea1);
+            this.TrafficChart.Location = new System.Drawing.Point(12, 13);
+            this.TrafficChart.Name = "TrafficChart";
+            this.TrafficChart.Size = new System.Drawing.Size(1056, 536);
+            this.TrafficChart.TabIndex = 5;
+            this.TrafficChart.Text = "TrafficChart";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1080, 649);
+            this.Controls.Add(this.TrafficChart);
             this.Controls.Add(this.Direction);
             this.Controls.Add(this.checkBox1);
-            this.Controls.Add(this.Routes);
             this.Controls.Add(this.Check);
             this.Name = "Form1";
             this.Text = "Whazee";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Direction.ResumeLayout(false);
             this.Direction.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TrafficChart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -135,12 +136,12 @@
         #endregion
 
         private System.Windows.Forms.Button Check;
-        private System.Windows.Forms.TabControl Routes;
         private System.Windows.Forms.Timer FiveMinTimer;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.GroupBox Direction;
         private System.Windows.Forms.RadioButton Home;
         private System.Windows.Forms.RadioButton Work;
+        private System.Windows.Forms.DataVisualization.Charting.Chart TrafficChart;
     }
 }
 

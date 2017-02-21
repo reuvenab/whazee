@@ -13,12 +13,31 @@ namespace whazee
 {
     public partial class Form1 : Form
     {
-       
-        
+
+        class RouteData : List<TimeSpan>
+        {
+            DateTime lastUpdated;
+
+            public RouteData(TimeSpan newTs)
+            {
+                Add(newTs);
+            }
+
+            public bool Expired => new TimeSpan(0,0,15) < (DateTime.Now - lastUpdated);
+
+            public new void Add(TimeSpan newTs)
+            {
+                lastUpdated = DateTime.Now;
+                base.Add(newTs);
+            }
+        }
+
+        Dictionary<string, RouteData> _routesData = new Dictionary<string, RouteData>();
+
+
         public Form1()
         {
             InitializeComponent();
-            Routes.DrawMode = TabDrawMode.OwnerDrawFixed;
         }
 
         private readonly string _home2office = @"https://www.waze.com/il-RoutingManager/routingRequest?from=x%3A34.894434+y%3A31.954212&to=x%3A35.209636+y%3A31.802528&at=0&returnJSON=true&returnGeometries=true&returnInstructions=true&timeout=60000&nPaths=3&clientVersion=4.0.0&options=AVOID_TRAILS%3At%2CALLOW_UTURNS%3At";
@@ -83,150 +102,45 @@ namespace whazee
                 var rn = alternative.response.routeName;
                 routeResults.Add(new Tuple<string, TimeSpan>(rn, ts));
             }
-            var newTabPages = new List<TabPage>();
+
             foreach (var routeResult in routeResults)
             {
-                ListBox lb =
-                    (from TabPage tabPage in Routes.TabPages
-                        where tabPage.Text == routeResult.Item1
-                        select (ListBox) tabPage.Controls[0]).FirstOrDefault();
-                List<TimeSpan> ds;
-                Chart chart;
-
-                if (lb == null)
+                RouteData rd;
+                if (!_routesData.TryGetValue(routeResult.Item1, out rd))
                 {
-                    var ntp = new TabPage {Text = routeResult.Item1, Tag = notChanged };
-                    ds = new List<TimeSpan>();
-                    lb = new ListBox
-                    {
-                        //DisplayMember = "Name",
-                        //ValueMember = "Titles",
-                        Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom,
-                        //Top = tb.Height,
-                        //Width = t.Width / 4,
-                        //Height = t.Height - tb.Height,
-                        //Tag = ds
-                        Font = new Font(Font.FontFamily, 15)
-                    };
-
-                    chart = new Chart
-                    {
-                        Width = 800,
-                        //Anchor = AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom,
-                        Left = lb.Left + lb.Width,
-                        Top = lb.Top
-                    };
-                    ChartArea chartArea1 = new ChartArea();
-
-                    var series0 = new Series(routeResult.Item1) {ChartType = SeriesChartType.Line};
-
-                    chart.ChartAreas.Add(chartArea1);
-                    chart.Series.Add(series0);
-                    ntp.Controls.Add(lb);
-                    ntp.Controls.Add(chart);
-                    ntp.AutoSize = true;
-                    
-                    newTabPages.Add(ntp);
-
-                    //chart.Width = ntp.Width - lb.Width;
+                    _routesData.Add(routeResult.Item1, new RouteData(routeResult.Item2));
                 }
                 else
                 {
-                    ds = (List<TimeSpan>)lb.DataSource;
-                    chart = (Chart)lb.Parent.Controls[1];
+                    rd.Add(routeResult.Item2);
                 }
-                ds.Insert(0, routeResult.Item2);
-                lb.DataSource = null;
-                lb.DataSource = ds;
-
-                var series = ds.Select(timeSpan => timeSpan.Minutes).ToList();
-
-                var points = chart.Series[routeResult.Item1].Points;
-                chart.BeginInit();
-                //foreach (var val in series)
-                //{
-                //    points.Add(val);
-                //}
-                chart.Series[routeResult.Item1].Points.DataBindY(series);
-                chart.EndInit();
             }
-            Routes.TabPages.AddRange(newTabPages.ToArray());
 
-            if (0 < Routes.TabPages.Count)
+            _routesData = _routesData.Where(routeData => !routeData.Value.Expired).ToDictionary(routeData => routeData.Key, routeData => routeData.Value);
+
+            TrafficChart.BeginInit();
             {
-                ColorRoutes();
+                TrafficChart.Series.Clear();
+                TrafficChart.Legends.Clear();
+
+                foreach (var curRoute in _routesData)
+                {
+                    var series = new Series(curRoute.Key) { IsVisibleInLegend = true, ChartType = SeriesChartType.Line };
+                    
+                    var seriesData = curRoute.Value.Select(ts => (ts.Hours == 0) ? ts.Minutes : (ts.Hours*60+ts.Minutes)).Take(20).ToList();
+
+                    series.Points.DataBindY(seriesData);
+                    TrafficChart.Series.Add(series);
+                    TrafficChart.Legends.Add(curRoute.Key);
+                }
             }
-              
+            TrafficChart.EndInit();
+            //var lg = TrafficChart.Legends;
         }
 
-        private TimeSpan FirstTimeSpan(TabPage ts)
-        {
-            var lb = (ListBox)ts.Controls[0];
-            var ds = (List<TimeSpan>)lb.DataSource;
-            return ds[0];
-        }
-
-        private TimeSpan SecondTimeSpan(TabPage ts)
-        {
-            var lb = (ListBox)ts.Controls[0];
-            var ds = (List<TimeSpan>) lb.DataSource;
-            return (1 < ds.Count) ? ds[1] : ds[0];
-        }
-
-        private Color improved = Color.Green;
-        private Color notChanged = Color.Gray;
-        private Color worsened = Color.Red;
         private string _wazeUrl;
 
-
-        private void ColorRoutes()
-        {
-            var minimalRoute = Routes.TabPages[0];
-            var minTimeSpan = FirstTimeSpan(minimalRoute);
-            foreach (TabPage tabPage in Routes.TabPages)
-            {
-                var curTimeSpan = FirstTimeSpan(tabPage);
-                var prevTimeSpan = SecondTimeSpan(tabPage);
-                if (curTimeSpan < minTimeSpan)
-                {
-                    minimalRoute.Font = new Font(minimalRoute.Font.FontFamily, minimalRoute.Font.SizeInPoints);
-                    minimalRoute = tabPage;
-                }
-
-                if (curTimeSpan < prevTimeSpan)
-                {
-                    tabPage.Tag = improved;
-                }
-                else
-                {
-                    tabPage.Tag = prevTimeSpan < curTimeSpan ? worsened : notChanged;
-                }
-            }
-            minimalRoute.Tag = Color.Gold;
-            Refresh();
-        }
-
-        private void Routes_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            TabPage tp = Routes.TabPages[e.Index];
-            Color bc = (Color) tp.Tag;
-
-            using (Brush br = new SolidBrush(bc))
-            {
-                e.Graphics.FillRectangle(br, e.Bounds);
-                Font f = e.Font;
-                if (bc == Color.Gold)
-                    f = new Font(f.FontFamily, f.SizeInPoints, FontStyle.Bold);
-                SizeF sz = e.Graphics.MeasureString(tp.Text, e.Font);
-                e.Graphics.DrawString(tp.Text, e.Font, Brushes.Black, e.Bounds.Left + (e.Bounds.Width - sz.Width) / 2, e.Bounds.Top + (e.Bounds.Height - sz.Height) / 2 + 1);
-                Rectangle rect = e.Bounds;
-                rect.Offset(0, 1);
-                rect.Inflate(0, -1);
-                e.Graphics.DrawRectangle(Pens.DarkGray, rect);
-                e.DrawFocusRectangle();
-            }
-        }
-
+        
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (!Check.Enabled)
@@ -241,6 +155,16 @@ namespace whazee
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            var chart = new Chart
+            {
+                Width = 800,
+                Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
+                //Left = Form1.Left + lb.Width,
+                //Top = lb.Top
+            };
+            ChartArea chartArea1 = new ChartArea();
+            chart.ChartAreas.Add(chartArea1);
+
             Home.Checked = true;
         }
 
